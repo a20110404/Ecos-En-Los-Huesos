@@ -1,6 +1,15 @@
-# Ecos en los Huesos — Roadmap de Desarrollo
+# 🍉 Ecos en los Huesos — Roadmap de Desarrollo
 
 **Ecos en los Huesos** es una aventura narrativa con tintes filosóficos ambientada en las calles de Guadalajara, protagonizada por Tana y Kimo. Este documento refleja el progreso del desarrollo del videojuego desde su génesis hasta su lanzamiento.
+
+## 📄 Información del Proyecto
+
+| Elemento                     | Detalle                                                                 |
+|-----------------------------|-------------------------------------------------------------------------|
+| **🎮 Título**               | Ecos en los Huesos                                                      |
+| **🧩 Versión de Unity**     | Unity 6.0 (6000.0.47f1) LTS                                              |
+| **🛠️ IDE**                 | Microsoft Visual Studio Community 2022                                   |
+| **📅 Fecha de Inicio**      | 19 de Mayo, 2025                                                       |
 
 ---
 
