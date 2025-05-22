@@ -21,6 +21,12 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheckpoint;
     public LayerMask whatIsGround;
 
+    [Header("Dash")]
+    public float dashSpeed = 50f;
+    public float dashTime = 0.8f;
+    private float dashCounter;
+    private bool isDashing;
+
     // Escalas para squash & stretch
     private Vector3 scaleNormal = new Vector3(1f, 1f, 1f);
     private Vector3 scaleSquash = new Vector3(1.3f, 0.6f, 1f);
@@ -33,15 +39,15 @@ public class PlayerController : MonoBehaviour
     private float squashTimer = 0f;
     private float squashDuration = 0.04f;
 
-    // Interpolación de escala
+    // Interpolaciï¿½n de escala
     private Vector3 targetScale;
-    public float scaleLerpSpeed = 12f; // Velocidad de interpolación
+    public float scaleLerpSpeed = 12f; // Velocidad de interpolaciï¿½n
 
     // Control de agachado/bouncing
     private bool isCrouching = false;
     private bool isCrouchBouncing = false;
     private float crouchBounceTimer = 0f;
-    private float crouchBounceDuration = 0.12f; // Duración del efecto bouncing
+    private float crouchBounceDuration = 0.12f; // Duraciï¿½n del efecto bouncing
 
     void Start()
     {
@@ -53,11 +59,31 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Movimiento
-        theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
-
         // Verifica si el jugador esta en el suelo
         isGrounded = Physics2D.OverlapCircle(groundCheckpoint.position, .2f, whatIsGround);
+
+        // ------------------ DASH ------------------
+        if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !isDashing)
+        {
+            isDashing = true;
+            dashCounter = dashTime;
+            theRB.linearVelocity = new Vector2(Input.GetAxisRaw("Horizontal") * dashSpeed, theRB.linearVelocity.y);
+        }
+
+        if (isDashing)
+        {
+            dashCounter -= Time.deltaTime;
+            if (dashCounter <= 0)
+            {
+                isDashing = false;
+            }
+        }
+
+        // Movimiento solo si no estï¿½ haciendo dash
+        if (!isDashing)
+        {
+            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
+        }
 
         // Detecta aterrizaje
         if (!wasGrounded && isGrounded)
@@ -122,7 +148,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Squash & Stretch con interpolación (solo si no está haciendo bouncing de agachado)
+            // Squash & Stretch con interpolaciï¿½n (solo si no estï¿½ haciendo bouncing de agachado)
             if (squashTimer > 0)
             {
                 squashTimer -= Time.deltaTime;
@@ -155,7 +181,7 @@ public class PlayerController : MonoBehaviour
         }
         // ----------------------------------------------------------
 
-        // Interpolación suave de la escala
+        // Interpolaciï¿½n suave de la escala
         transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleLerpSpeed);
 
         // Actualiza el estado anterior
