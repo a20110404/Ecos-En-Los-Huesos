@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 59e85f309e242df479cba5fb5a2f3121
+guid: 7d95543f1cd152d439d521a4735afc26
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4252208618691987727
-    second: kimo_0
-  - first:
-      213: -703638736002063376
-    second: kimo_1
-  - first:
-      213: 716060944806537436
-    second: kimo_2
-  - first:
-      213: 8816569843139366587
-    second: kimo_3
+      213: 8793639957104055765
+    second: idle_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -57,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 280
+  spritePixelsToUnits: 150
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -109,89 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kimo_idle
+      name: idle_0
       rect:
         serializedVersion: 2
-        x: 81
-        y: 474
-        width: 352
-        height: 522
+        x: 80
+        y: 6
+        width: 177
+        height: 337
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f6720c5ace1df4c0800000000000000
-      internalID: -4252208618691987727
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: kimo_1
-      rect:
-        serializedVersion: 2
-        x: 579
-        y: 487
-        width: 360
-        height: 487
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0f364623c4c2c36f0800000000000000
-      internalID: -703638736002063376
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: kimo_2
-      rect:
-        serializedVersion: 2
-        x: 106
-        y: 3
-        width: 327
-        height: 449
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cd869bca2a5ffe900800000000000000
-      internalID: 716060944806537436
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: kimo_3
-      rect:
-        serializedVersion: 2
-        x: 580
-        y: 3
-        width: 373
-        height: 471
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bbe4eb56f8fba5a70800000000000000
-      internalID: 8816569843139366587
+      spriteID: 5d55ed543f8490a70800000000000000
+      internalID: 8793639957104055765
       vertices: []
       indices: 
       edges: []
@@ -200,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3132b794a542c814f8315f805080dc0b
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -210,10 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kimo_1: -703638736002063376
-      kimo_2: 716060944806537436
-      kimo_3: 8816569843139366587
-      kimo_idle: -4252208618691987727
+      idle_0: 8793639957104055765
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
