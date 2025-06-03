@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
         // Movimiento solo si no est� haciendo dash
         if (!isDashing)
         {
-            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxis("Horizontal"), theRB.linearVelocity.y);
+            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
         }
 
         // Detecta aterrizaje
