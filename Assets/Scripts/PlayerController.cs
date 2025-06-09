@@ -137,6 +137,13 @@ public class PlayerController : MonoBehaviour
             targetScale = scaleCrouchBounce;
         }
 
+        if (didSquash)
+        {
+            // Si ya se hizo squash, no hacer squash de nuevo hasta que termine el timer
+            squashTimer = 0f;
+            didSquash = false;
+        }
+
         if (isCrouchBouncing)
         {
             crouchBounceTimer -= Time.deltaTime;
