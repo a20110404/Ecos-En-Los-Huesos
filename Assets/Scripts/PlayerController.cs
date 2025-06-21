@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
         // Movimiento solo si no est� haciendo dash
         if (!isDashing)
         {
-            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxis("Horizontal"), theRB.linearVelocity.y);
+            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
         }
 
         // Detecta aterrizaje
@@ -135,6 +135,13 @@ public class PlayerController : MonoBehaviour
             isCrouchBouncing = true;
             crouchBounceTimer = crouchBounceDuration;
             targetScale = scaleCrouchBounce;
+        }
+
+        if (didSquash)
+        {
+            // Si ya se hizo squash, no hacer squash de nuevo hasta que termine el timer
+            squashTimer = 0f;
+            didSquash = false;
         }
 
         if (isCrouchBouncing)
