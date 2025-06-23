@@ -45,10 +45,19 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Background
+  - name: World
     uniqueID: 2934324561
     locked: 0
-  - name: World
+  - name: Background
+    uniqueID: 1387827551
+    locked: 0
+  - name: CloudsBackground
+    uniqueID: 670236137
+    locked: 0
+  - name: MiddleBackground
+    uniqueID: 3066567197
+    locked: 0
+  - name: CloseBackground
     uniqueID: 1592427867
     locked: 0
   - name: Player
