@@ -50,8 +50,8 @@ public class PlayerController : MonoBehaviour
     private float crouchBounceDuration = 0.12f; // Duraci�n del efecto bouncing
 
     // Objeto para inventario
-    GameObject inventario_com;
-    private bool inventoryVisible = false;
+    //GameObject inventario_com;
+    //private bool inventoryVisible = false;
 
     void Start()
     {
@@ -60,8 +60,8 @@ public class PlayerController : MonoBehaviour
         targetScale = scaleNormal;
         transform.localScale = scaleNormal;
         // inventario
-        inventario_com = GameObject.FindGameObjectWithTag("inventario-com");
-        inventario_com.SetActive(false);
+        //inventario_com = GameObject.FindGameObjectWithTag("inventario-com");
+        //inventario_com.SetActive(false);
     }
 
     void Update()
@@ -207,6 +207,7 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("isCrouching", isCrouching);
 
         // Control para el inventario
+        /*
         if (Input.GetKeyUp(KeyCode.I))
         {
             inventoryVisible = !inventoryVisible;
@@ -218,6 +219,6 @@ public class PlayerController : MonoBehaviour
                     .GetComponent<InventoryController>()
                     .showInventory();
             }
-        }
+        }*/
     }
 }
