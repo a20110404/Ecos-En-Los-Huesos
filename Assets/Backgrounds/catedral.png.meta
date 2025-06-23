@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      catedral_0: -748760272773797373
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
