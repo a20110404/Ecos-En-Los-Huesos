@@ -3,7 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - CheckPoint
+  - objeto_pickeable
+  - general_events
+  - inventario
+  - inventario-com
+  - slot
+  - pan
   layers:
   - Default
   - TransparentFX
