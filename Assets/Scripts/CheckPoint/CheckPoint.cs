@@ -2,25 +2,31 @@ using UnityEngine;
 
 public class CheckPoint : MonoBehaviour
 {
-    public BoxCollider2D trigger;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("Referencias")]
+    [SerializeField] private BoxCollider2D trigger;
+    [SerializeField] private Animator checkpointAnimator;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [Header("Configuración")]
+    [SerializeField] private string activateAnimation = "Activate";
+
+    private bool isActive = false;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && !isActive)
         {
+            // Solo actualizamos el punto de respawn, NO restauramos salud
             RespawnController.Instance.respawnPoint = transform;
+
+            // Activar animación
+            if (checkpointAnimator != null)
+            {
+                checkpointAnimator.SetTrigger(activateAnimation);
+            }
+
+            // Desactivar el trigger para evitar reactivaciones
             trigger.enabled = false;
+            isActive = true;
         }
     }
 }

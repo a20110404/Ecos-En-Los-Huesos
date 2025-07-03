@@ -11,6 +11,7 @@ TagManager:
   - inventario-com
   - slot
   - pan
+  - Inventory
   layers:
   - Default
   - TransparentFX
