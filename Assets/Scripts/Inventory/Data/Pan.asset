@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2933d984a99f8ee469208c1eeeda47eb, type: 3}
+  m_Name: Pan
+  m_EditorClassIdentifier: 
+  <IsStackable>k__BackingField: 1
+  <MaxStackSize>k__BackingField: 99
+  <Name>k__BackingField: Pan
+  <Description>k__BackingField: Restaura la salud.
+  <ItemImage>k__BackingField: {fileID: 8041774921739049974, guid: 3d23f37dcb029be44b55b21d5e175e9d, type: 3}
+  modifierData:
+  - statModifier: {fileID: 11400000, guid: b33531b46025f4d46856be91bd8ae7c0, type: 2}
+    value: 1

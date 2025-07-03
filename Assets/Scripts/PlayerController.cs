@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -27,6 +29,13 @@ public class PlayerController : MonoBehaviour
     private float dashCounter;
     private bool isDashing;
 
+    [Header("Knockback")] // Nuevo sistema de knockback
+    [SerializeField] private float knockbackDuration = 0.3f;
+    private bool isKnockback = false;
+
+    [Header("Caída")]
+    [SerializeField] private float fallDeathThreshold = -10f;
+
     // Escalas para squash & stretch
     private Vector3 scaleNormal = new Vector3(1f, 1f, 1f);
     private Vector3 scaleSquash = new Vector3(1.3f, 0.6f, 1f);
@@ -39,19 +48,15 @@ public class PlayerController : MonoBehaviour
     private float squashTimer = 0f;
     private float squashDuration = 0.04f;
 
-    // Interpolaci�n de escala
+    // Interpolación de escala
     private Vector3 targetScale;
-    public float scaleLerpSpeed = 12f; // Velocidad de interpolaci�n
+    public float scaleLerpSpeed = 12f; // Velocidad de interpolación
 
     // Control de agachado/bouncing
     private bool isCrouching = false;
     private bool isCrouchBouncing = false;
     private float crouchBounceTimer = 0f;
-    private float crouchBounceDuration = 0.12f; // Duraci�n del efecto bouncing
-
-    // Objeto para inventario
-    //GameObject inventario_com;
-    //private bool inventoryVisible = false;
+    private float crouchBounceDuration = 0.12f; // Duración del efecto bouncing
 
     void Start()
     {
@@ -59,13 +64,14 @@ public class PlayerController : MonoBehaviour
         theSR = GetComponent<SpriteRenderer>();
         targetScale = scaleNormal;
         transform.localScale = scaleNormal;
-        // inventario
-        //inventario_com = GameObject.FindGameObjectWithTag("inventario-com");
-        //inventario_com.SetActive(false);
     }
 
     void Update()
     {
+        // Si estamos en knockback, no procesamos movimientos
+        if (isKnockback)
+            return;
+
         // Verifica si el jugador esta en el suelo
         isGrounded = Physics2D.OverlapCircle(groundCheckpoint.position, .2f, whatIsGround);
 
@@ -86,7 +92,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Movimiento solo si no est� haciendo dash
+        // Movimiento solo si no está haciendo dash
         if (!isDashing)
         {
             theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
@@ -126,11 +132,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (theRB.linearVelocityX < 0)
+        if (theRB.linearVelocity.x < 0)
         {
             theSR.flipX = true;
         }
-        else if (theRB.linearVelocityX > 0)
+        else if (theRB.linearVelocity.x > 0)
         {
             theSR.flipX = false;
         }
@@ -162,7 +168,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Squash & Stretch con interpolaci�n (solo si no est� haciendo bouncing de agachado)
+            // Squash & Stretch con interpolación (solo si no está haciendo bouncing de agachado)
             if (squashTimer > 0)
             {
                 squashTimer -= Time.deltaTime;
@@ -195,30 +201,46 @@ public class PlayerController : MonoBehaviour
         }
         // ----------------------------------------------------------
 
-        // Interpolaci�n suave de la escala
+        // Interpolación suave de la escala
         transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleLerpSpeed);
 
         // Actualiza el estado anterior
         wasGrounded = isGrounded;
 
         // cambia los valores del contexto del animator
-        anim.SetFloat("moveSpeed", Mathf.Abs(theRB.linearVelocityX));
+        anim.SetFloat("moveSpeed", Mathf.Abs(theRB.linearVelocity.x));
         anim.SetBool("isGrounded", isGrounded);
         anim.SetBool("isCrouching", isCrouching);
 
-        // Control para el inventario
-        /*
-        if (Input.GetKeyUp(KeyCode.I))
-        {
-            inventoryVisible = !inventoryVisible;
-            inventario_com.SetActive(inventoryVisible);
+        CheckForFallDeath();
+    }
 
-            if (inventoryVisible)
-            {
-                GameObject.FindGameObjectWithTag("general_events")
-                    .GetComponent<InventoryController>()
-                    .showInventory();
-            }
-        }*/
+    // Nuevo método para aplicar knockback
+    public void ApplyKnockback(Vector2 force)
+    {
+        StartCoroutine(ProcessKnockback(force));
+    }
+
+    private IEnumerator ProcessKnockback(Vector2 force)
+    {
+        isKnockback = true;
+
+        // Aplicar fuerza de empuje
+        theRB.linearVelocity = Vector2.zero; // Resetear velocidad actual
+        theRB.AddForce(force, ForceMode2D.Impulse);
+
+        // Esperar duración del knockback
+        yield return new WaitForSeconds(knockbackDuration);
+
+        isKnockback = false;
+    }
+
+    private void CheckForFallDeath()
+    {
+        if (transform.position.y < fallDeathThreshold)
+        {
+            // Llamar directamente al respawn
+            RespawnController.Instance.StartCoroutine(RespawnController.Instance.RespawnPlayer(gameObject));
+        }
     }
 }
