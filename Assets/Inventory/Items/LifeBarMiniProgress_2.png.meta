@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      LifeBarMiniProgress_2_0: 631577682813310778
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
