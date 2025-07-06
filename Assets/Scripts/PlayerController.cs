@@ -1,246 +1,233 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Animator), typeof(SpriteRenderer))]
 public class PlayerController : MonoBehaviour
 {
+    // ─────────── Ajustes en Inspector ───────────
     [Header("Movimiento")]
-    public float moveSpeed;
+    [SerializeField] private float moveSpeed = 8f;
 
     [Header("Salto")]
-    private bool canDoubleJump;
-    public float jumpForce;
+    [SerializeField] private float jumpForce = 18f;
+    [SerializeField] private bool allowDoubleJump = true;
 
-    [Header("Componentes")]
-    public Rigidbody2D theRB;
-
-    [Header("Animator")]
-    private Animator anim;
-    private SpriteRenderer theSR;
-
-    [Header("Grounded")]
-    private bool isGrounded;
-    public Transform groundCheckpoint;
-    public LayerMask whatIsGround;
+    [Header("Ground Check")]
+    [SerializeField] private Transform groundCheckpoint;
+    [SerializeField] private LayerMask  whatIsGround;
+    [SerializeField] private float      groundCheckRadius = .2f;
 
     [Header("Dash")]
-    public float dashSpeed = 50f;
-    public float dashTime = 0.8f;
-    private float dashCounter;
-    private bool isDashing;
+    [SerializeField] private float dashSpeed    = 50f;
+    [SerializeField] private float dashDuration = .8f;
 
-    [Header("Knockback")] // Nuevo sistema de knockback
-    [SerializeField] private float knockbackDuration = 0.3f;
-    private bool isKnockback = false;
+    [Header("Knockback")]
+    [SerializeField] private float knockbackDuration = .3f;
 
-    [Header("Caída")]
+    [Header("Muerte por caída")]
     [SerializeField] private float fallDeathThreshold = -10f;
 
-    // Escalas para squash & stretch
-    private Vector3 scaleNormal = new Vector3(1f, 1f, 1f);
-    private Vector3 scaleSquash = new Vector3(1.3f, 0.6f, 1f);
-    private Vector3 scaleStretch = new Vector3(0.9f, 1.1f, 1f);
-    private Vector3 scaleCrouchBounce = new Vector3(1.2f, 0.9f, 1f); // Escala para el efecto bouncing
+    [Header("Escalas (Squash & Stretch)")]
+    [SerializeField] private Vector3 scaleNormal       = new Vector3(1f, 1f, 1f);
+    [SerializeField] private Vector3 scaleSquash       = new Vector3(1.3f, .6f, 1f);
+    [SerializeField] private Vector3 scaleStretch      = new Vector3(.9f, 1.1f, 1f);
+    [SerializeField] private Vector3 scaleCrouchBounce = new Vector3(1.2f, .9f, 1f);
+    [SerializeField] private float   scaleLerpSpeed    = 12f;
 
-    // Control de squash
-    private bool didSquash = false;
-    private bool wasGrounded = false;
-    private float squashTimer = 0f;
-    private float squashDuration = 0.04f;
+    [Header("Timers (segundos)")]
+    [SerializeField] private float squashDuration       = .04f;
+    [SerializeField] private float crouchBounceDuration = .12f;
 
-    // Interpolación de escala
+    // ─────────── Componentes cacheados ───────────
+    private Rigidbody2D    rb;
+    private Animator       anim;
+    private SpriteRenderer sr;
+
+    // ─────────── Estado interno ───────────
+    private bool  isGrounded, wasGrounded;
+    private bool  isDashing, isKnockback;
+    private bool  canDoubleJump, isCrouching, isCrouchBouncing, didSquash;
+    private float horizontalInput, dashTimer, squashTimer, crouchBounceTimer;
     private Vector3 targetScale;
-    public float scaleLerpSpeed = 12f; // Velocidad de interpolación
 
-    // Control de agachado/bouncing
-    private bool isCrouching = false;
-    private bool isCrouchBouncing = false;
-    private float crouchBounceTimer = 0f;
-    private float crouchBounceDuration = 0.12f; // Duración del efecto bouncing
-
-    void Start()
+    // ─────────── Unity events ───────────
+    private void Awake()
     {
+        rb   = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        theSR = GetComponent<SpriteRenderer>();
-        targetScale = scaleNormal;
+        sr   = GetComponent<SpriteRenderer>();
+    }
+
+    private void Start()
+    {
+        targetScale       = scaleNormal;
         transform.localScale = scaleNormal;
     }
 
-    void Update()
+    private void Update()
     {
-        // Si estamos en knockback, no procesamos movimientos
-        if (isKnockback)
-            return;
+        if (isKnockback) return;
 
-        // Verifica si el jugador esta en el suelo
-        isGrounded = Physics2D.OverlapCircle(groundCheckpoint.position, .2f, whatIsGround);
+        horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        // ------------------ DASH ------------------
-        if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !isDashing)
+        CheckGrounded();
+        HandleDash();          // incluye movimiento
+        HandleJump();
+        HandleCrouchBounce();
+        HandleSquashStretch();
+
+        transform.localScale = Vector3.Lerp(transform.localScale,
+                                            targetScale,
+                                            Time.deltaTime * scaleLerpSpeed);
+
+        wasGrounded = isGrounded;
+
+        UpdateAnimator();
+        CheckForFallDeath();
+    }
+
+    // ─────────────────────────────────────────────
+    private void CheckGrounded()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheckpoint.position,
+                                             groundCheckRadius,
+                                             whatIsGround);
+        if (isGrounded && allowDoubleJump) canDoubleJump = true;
+    }
+
+    private void HandleHorizontalMovement()
+    {
+        if (isDashing) return;
+        rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
+
+        if (horizontalInput < 0)      sr.flipX = true;
+        else if (horizontalInput > 0) sr.flipX = false;
+    }
+
+    private void HandleJump()
+    {
+        if (!Input.GetButtonDown("Jump")) return;
+
+        if (isGrounded)
         {
-            isDashing = true;
-            dashCounter = dashTime;
-            theRB.linearVelocity = new Vector2(Input.GetAxisRaw("Horizontal") * dashSpeed, theRB.linearVelocity.y);
+            Jump();
+            StartSquash();
+        }
+        else if (canDoubleJump)
+        {
+            Jump();
+            canDoubleJump = false;
+        }
+    }
+
+    private void Jump() =>
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+    private void HandleDash()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && horizontalInput != 0 && !isDashing)
+        {
+            isDashing   = true;
+            dashTimer   = dashDuration;
+            rb.linearVelocity = new Vector2(horizontalInput * dashSpeed, rb.linearVelocity.y);
         }
 
         if (isDashing)
         {
-            dashCounter -= Time.deltaTime;
-            if (dashCounter <= 0)
-            {
-                isDashing = false;
-            }
+            dashTimer -= Time.deltaTime;
+            if (dashTimer <= 0f) isDashing = false;
         }
 
-        // Movimiento solo si no está haciendo dash
-        if (!isDashing)
-        {
-            theRB.linearVelocity = new Vector2(moveSpeed * Input.GetAxisRaw("Horizontal"), theRB.linearVelocity.y);
-        }
+        if (!isDashing) HandleHorizontalMovement();
+    }
 
-        // Detecta aterrizaje
-        if (!wasGrounded && isGrounded)
-        {
-            // Squash al aterrizar
-            targetScale = scaleSquash;
-            squashTimer = squashDuration;
-        }
-
-        if (isGrounded)
-        {
-            canDoubleJump = true;
-            didSquash = false;
-        }
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            if (isGrounded)
-            {
-                theRB.linearVelocity = new Vector2(theRB.linearVelocity.x, jumpForce);
-                // Squash al inicio del salto
-                targetScale = scaleSquash;
-                squashTimer = squashDuration;
-                didSquash = true;
-            }
-            else
-            {
-                if (canDoubleJump)
-                {
-                    theRB.linearVelocity = new Vector2(theRB.linearVelocity.x, jumpForce);
-                    canDoubleJump = false;
-                }
-            }
-        }
-
-        if (theRB.linearVelocity.x < 0)
-        {
-            theSR.flipX = true;
-        }
-        else if (theRB.linearVelocity.x > 0)
-        {
-            theSR.flipX = false;
-        }
-
-        // ------------------- Bouncing al agacharse -------------------
+    private void HandleCrouchBounce()
+    {
         if (isGrounded && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)))
         {
-            isCrouching = true;
-            isCrouchBouncing = true;
+            isCrouching       = true;
+            isCrouchBouncing  = true;
             crouchBounceTimer = crouchBounceDuration;
-            targetScale = scaleCrouchBounce;
+            targetScale       = scaleCrouchBounce;
         }
 
-        if (didSquash)
-        {
-            // Si ya se hizo squash, no hacer squash de nuevo hasta que termine el timer
-            squashTimer = 0f;
-            didSquash = false;
-        }
+        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)))
+            isCrouching = false;
 
         if (isCrouchBouncing)
         {
             crouchBounceTimer -= Time.deltaTime;
-            if (crouchBounceTimer <= 0)
+            if (crouchBounceTimer <= 0f)
             {
                 isCrouchBouncing = false;
-                targetScale = scaleNormal;
+                targetScale      = scaleNormal;
             }
         }
-        else
-        {
-            // Squash & Stretch con interpolación (solo si no está haciendo bouncing de agachado)
-            if (squashTimer > 0)
-            {
-                squashTimer -= Time.deltaTime;
-                if (squashTimer <= 0)
-                {
-                    if (!isGrounded && Mathf.Abs(theRB.linearVelocity.y) > 0.1f)
-                    {
-                        targetScale = scaleStretch;
-                    }
-                    else
-                    {
-                        targetScale = scaleNormal;
-                    }
-                }
-            }
-            else if (!isGrounded && Mathf.Abs(theRB.linearVelocity.y) > 0.1f)
-            {
-                targetScale = scaleStretch;
-            }
-            else if (isGrounded)
-            {
-                targetScale = scaleNormal;
-            }
-        }
-
-        // Si se suelta la tecla de agacharse, deja de estar agachado
-        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)))
-        {
-            isCrouching = false;
-        }
-        // ----------------------------------------------------------
-
-        // Interpolación suave de la escala
-        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleLerpSpeed);
-
-        // Actualiza el estado anterior
-        wasGrounded = isGrounded;
-
-        // cambia los valores del contexto del animator
-        anim.SetFloat("moveSpeed", Mathf.Abs(theRB.linearVelocity.x));
-        anim.SetBool("isGrounded", isGrounded);
-        anim.SetBool("isCrouching", isCrouching);
-
-        CheckForFallDeath();
     }
 
-    // Nuevo método para aplicar knockback
-    public void ApplyKnockback(Vector2 force)
+    private void HandleSquashStretch()
     {
-        StartCoroutine(ProcessKnockback(force));
+        if (!wasGrounded && isGrounded) StartSquash();
+
+        if (squashTimer > 0)
+        {
+            squashTimer -= Time.deltaTime;
+            if (squashTimer <= 0) ChooseTargetScaleAfterSquash();
+        }
+        else if (!isGrounded && Mathf.Abs(rb.linearVelocity.y) > 0.1f)
+        {
+            targetScale = scaleStretch;
+        }
+        else if (isGrounded && !isCrouchBouncing)
+        {
+            targetScale = scaleNormal;
+        }
     }
+
+    private void StartSquash()
+    {
+        if (didSquash) return;
+        targetScale  = scaleSquash;
+        squashTimer  = squashDuration;
+        didSquash    = true;
+    }
+
+    private void ChooseTargetScaleAfterSquash()
+    {
+        didSquash   = false;
+        targetScale = (!isGrounded && Mathf.Abs(rb.linearVelocity.y) > 0.1f)
+                      ? scaleStretch
+                      : scaleNormal;
+    }
+
+    // ─────────── Knockback ───────────
+    public void ApplyKnockback(Vector2 force) =>
+        StartCoroutine(ProcessKnockback(force));
 
     private IEnumerator ProcessKnockback(Vector2 force)
     {
-        isKnockback = true;
+        isKnockback   = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
 
-        // Aplicar fuerza de empuje
-        theRB.linearVelocity = Vector2.zero; // Resetear velocidad actual
-        theRB.AddForce(force, ForceMode2D.Impulse);
-
-        // Esperar duración del knockback
         yield return new WaitForSeconds(knockbackDuration);
-
         isKnockback = false;
+    }
+
+    // ─────────── Animator & muerte ───────────
+    private void UpdateAnimator()
+    {
+        anim.SetFloat("moveSpeed", Mathf.Abs(rb.linearVelocity.x));
+        anim.SetBool ("isGrounded", isGrounded);
+        anim.SetBool ("isCrouching", isCrouching);
     }
 
     private void CheckForFallDeath()
     {
         if (transform.position.y < fallDeathThreshold)
         {
-            // Llamar directamente al respawn
-            RespawnController.Instance.StartCoroutine(RespawnController.Instance.RespawnPlayer(gameObject));
+            RespawnController.Instance.StartCoroutine(
+                RespawnController.Instance.RespawnPlayer(gameObject));
         }
     }
 }
