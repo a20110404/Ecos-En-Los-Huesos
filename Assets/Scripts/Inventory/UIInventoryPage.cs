@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Inventory.UI
 {
@@ -76,7 +74,7 @@ namespace Inventory.UI
         private void HandleEndDrag(UIInventoryItem inventoryItemUI)
         {
             // Obtener el mouse follower
-            MouseFollower mouseFollower = FindObjectOfType<MouseFollower>();
+            MouseFollower mouseFollower = UnityEngine.Object.FindFirstObjectByType<MouseFollower>();
 
             // Verificar si fue soltado fuera del inventario
             if (mouseFollower != null && !mouseFollower.IsOverInventory())

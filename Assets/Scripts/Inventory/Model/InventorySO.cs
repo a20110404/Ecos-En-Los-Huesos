@@ -30,7 +30,7 @@ namespace Inventory.Model
         {
             if(item.IsStackable == false)
             {
-                for (int i = 0; i < inventoryItems.Count; i++)
+                foreach (InventoryItem v in inventoryItems)
                 {
                     while(quantity > 0 && IsInventoryFull() == false)
                     {

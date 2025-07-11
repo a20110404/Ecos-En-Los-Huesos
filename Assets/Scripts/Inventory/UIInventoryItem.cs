@@ -22,7 +22,7 @@ namespace Inventory.UI
 
         public event Action<UIInventoryItem> OnItemClicked,
             OnItemDroppedOn, OnItemBeginDrag, OnItemEndDrag,
-            OnRightMouseBtnClick, OnItemDoubleClicked;
+            OnItemDoubleClicked;
 
         private bool empty = true;
 
