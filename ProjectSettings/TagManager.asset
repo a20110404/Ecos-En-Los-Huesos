@@ -16,16 +16,16 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - BackGround
   - Water
   - UI
   - Player
   - Ground
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Portal
+  - CheckPoints
+  - Respawn
+  - Enemigos
+  - Objetos
   - 
   - 
   - 
@@ -60,6 +60,15 @@ TagManager:
     locked: 0
   - name: CloseBackground
     uniqueID: 1592427867
+    locked: 0
+  - name: Suelo
+    uniqueID: 2991085175
+    locked: 0
+  - name: Checkpoints
+    uniqueID: 1218440343
+    locked: 0
+  - name: Enemigos
+    uniqueID: 1270802121
     locked: 0
   - name: Player
     uniqueID: 2225613083
